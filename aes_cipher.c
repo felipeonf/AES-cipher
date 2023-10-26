@@ -1,14 +1,15 @@
 #include <stdio.h>
+#include <stdint.h>
 
 /*
 Implementar essas funções
 ADD ROUND KEY
 BYTE SUB
-SHIFT ROW
 MIX COLUMN
 */
-#include <stdio.h>
-#include <stdint.h>
+
+ typedef uint8_t estado_t[4][4];
+
 
 const uint8_t sBox[256] = {
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -48,15 +49,59 @@ const uint8_t isBox[256] = {
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
 };
 
+void ShiftRows(estado_t  estado) {
+    uint8_t temp;
+
+    temp = estado[1][0];
+    estado[1][0] = estado[1][1];
+    estado[1][1] = estado[1][2];
+    estado[1][2] = estado[1][3];
+    estado[1][3] = temp;
+
+    
+    temp = estado[2][0];
+    estado[2][0] = estado[2][2];
+    estado[2][2] = temp;
+    temp = estado[2][1];
+    estado[2][1] = estado[2][3];
+    estado[2][3] = temp;
+
+    
+    temp = estado[3][3];
+    estado[3][3] = estado[3][2];
+    estado[3][2] = estado[3][1];
+    estado[3][1] = estado[3][0];
+    estado[3][0] = temp;
+
+}
+
 int main() {
     uint8_t inputValue = 0x87;
     uint8_t outputValue = sBox[inputValue];
-    
+
+
+     estado_t matriz_estado = {
+        {0x32, 0x88, 0x31, 0xe0},
+        {0x43, 0x5a, 0x31, 0x37},
+        {0xf6, 0x30, 0x98, 0x07},
+        {0xa8, 0x8d, 0xa2, 0x34}
+    };
+
+    ShiftRows(matriz_estado);
+
+    printf("Estado da matriz apos ShiftRows:\n");
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            printf("%02x ", matriz_estado[i][j]);
+        }
+        printf("\n");
+    }
+
     
 
     printf("Entrada: 0x%02X\n", inputValue);
-    printf("Saída da S-Box: 0x%02X\n", outputValue);
-    printf("Saída da IS-Box: 0x%02X\n", isBox[inputValue]);
+    printf("Saida da S-Box: 0x%02X\n", outputValue);
+    printf("Saida da IS-Box: 0x%02X\n", isBox[inputValue]);
 
     return 0;
 }
